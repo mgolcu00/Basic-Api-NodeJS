@@ -1,6 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const dotenv = require('dotenv')
 
+// Config
+dotenv.config()
 // Create Express App
 const app = express();
 app.use(express.json())
@@ -13,7 +16,8 @@ app.listen(PORT, () => {
 });
 
 // Database
-mongoose.connect('mongodb://localhost/basicdb', {
+mongoose.connect(
+   process.env.DB_CONNECT, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
@@ -30,5 +34,7 @@ app.get('/', (req, res) => {
 });
 
 const HabitsRoute = require('./routes/Habits');
-
 app.use('/habits', HabitsRoute);
+
+const AuthRoute = require('./routes/Auth');
+app.use('/auth',AuthRoute);
