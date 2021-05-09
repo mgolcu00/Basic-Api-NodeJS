@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Habit = require('../models/Habit');
+const verify = require('../validation/verifyToken');
 
 // Get All Habits
-router.get('/', async (req, res) => {
+router.get('/', verify, async (req, res) => {
     const habits = await Habit.find();
     res.json(habits);
 });
