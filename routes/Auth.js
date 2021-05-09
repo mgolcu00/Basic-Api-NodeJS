@@ -4,14 +4,15 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const { registerValidation, loginValidation } = require('../validation')
 
+// Register
 router.post('/register', async (req, res) => {
 
     // validation 
-    const { error } = registerValidation(req.body)
-    if (error) return res.status(400).send(error.details[0].message)
+    const { error } = registerValidation(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
 
     // Checking if the user already exist
-    const emailExist = await User.findOne({ email: req.body.email })
+    const emailExist = await User.findOne({ email: req.body.email });
     if (emailExist) return res.status(400).send("Email already exist.");
 
     // Hash password
@@ -25,9 +26,29 @@ router.post('/register', async (req, res) => {
     });
     try {
         const savedUser = await user.save();
-        res.send(savedUser);
+        res.send({id:savedUser._id});
     } catch (err) {
         res.status(400).send(err);
     }
 });
+
+
+// Login
+router.post('/login', async (req, res) => {
+    // validation 
+    const { error } = loginValidation(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    // Checking if email exist.
+    const user = await User.findOne({ email: req.body.email })
+    if (!user) return res.status(400).send("Email not found");
+
+    // Checking password
+    const validPass = await bcrypt.compare(req.body.password,user.password);
+    if(!validPass) return res.status(400).send("Invalid password");
+
+    res.send("Logged in");
+
+})
+
 module.exports = router
